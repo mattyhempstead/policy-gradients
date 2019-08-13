@@ -1,24 +1,30 @@
 """
+This program successfully demonstrates the converging properties of the policy gradient algorithm
+Given N actions, each with different reward values, and algorithm is able to correctly determine which 
+is worth the most reward and converge to this action.
 
+This true for all cases, even if the algorithm begins highly biased towards a lower reward rating,
+it will still converge to the correct action with a small enough learning rate.
+In practice, however, the algorithm often has trouble converging to higher rewards when an action with 
+similar reward already has a high probability and the best action has a low probability to being with.
 """
 
 import numpy as np, random, math
 
 print('Testing weighted features')
 
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.001
 FEATURES = 2
-REWARDS = [1,2,3,3.1]
+REWARDS = np.array([10, 11])
 OUTPUTS = len(REWARDS)
 
 weights = np.array([[random.random() for i in range(FEATURES)] for j in range(OUTPUTS)])
 weights = np.array([
-    np.array([0.0,4.0]),
-    np.array([0.0,3.0]),
-    np.array([0.0,2.0]),
-    np.array([0.0,1.0])
+    np.array([0.0,5.0]),
+    np.array([0.0,5.0])
 ])
 
+print('Rewards', REWARDS)
 print(weights)
 
 def getOutput(weights, features):
@@ -35,11 +41,12 @@ def train(weights, output):
 
     # Calculate policy gradients
     grad = np.empty(len(REWARDS))
-    for i in range(len(grad)):
+    for i in range(len(REWARDS)):
         if i == choice:
             grad[i] = 1 - output["output"][i]
         else:
             grad[i] = -output["output"][i]
+
     grad *= REWARDS[choice]
     # print(choice, grad)
 
@@ -67,7 +74,7 @@ while True:
 
     weights = train(weights, output)
 
-    if output["output"][output["choice"]] >= 0.98:
+    if output["output"][output["choice"]] >= 0.99:
         print('Converged on choice', output["choice"])
         break
 
