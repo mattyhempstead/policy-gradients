@@ -1,6 +1,6 @@
 """
 This script trains an agent for cartpole using MC policy gradients
-The agent is able to solve after ~200 generations however it will often forget its knowledge
+The agent is able to solve after a few hundred generations however it will often forget its knowledge
 and oscilate between non-solved and solved states.
 """
 
@@ -25,7 +25,7 @@ env = gym.make('CartPole-v0')
 total_rewards = []
 
 
-TRAINING_EPOCHS = 1000  
+TRAINING_EPOCHS = 3000
 DISCOUNT_FACTOR = 0.9
 
 
@@ -33,8 +33,23 @@ DISCOUNT_FACTOR = 0.9
 plt.ion()
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
-line, = ax.plot(total_rewards)
+line, = ax.plot([], "c")
+line_ma, = ax.plot([], "b")
 
+def update_plot(y_values):
+    ax.set_xlim(0, len(y_values)-1)
+    ax.set_ylim(0, max(y_values))
+
+    line.set_ydata(y_values)
+    line.set_xdata(list(range(len(y_values))))
+
+    # Plot a moving average of size 10
+    y_values_ma = [np.array(y_values[-10-i:][:10]).mean() for i in range(len(y_values))][::-1]
+    line_ma.set_ydata(y_values_ma)
+    line_ma.set_xdata(list(range(len(y_values_ma))))
+
+    fig.canvas.draw()
+    fig.canvas.flush_events()
 
 for episode in range(TRAINING_EPOCHS):
 
@@ -66,12 +81,7 @@ for episode in range(TRAINING_EPOCHS):
 
             # Update plot live
             total_rewards.append(t+1)
-            ax.set_xlim(0, len(total_rewards))
-            ax.set_ylim(0, max(total_rewards))
-            line.set_ydata(total_rewards)
-            line.set_xdata(list(range(len(total_rewards))))
-            fig.canvas.draw()
-            fig.canvas.flush_events()
+            update_plot(total_rewards)
 
             break
 
@@ -101,5 +111,5 @@ for episode in range(TRAINING_EPOCHS):
 env.close()
 
 plt.ioff()
-plt.plot(total_rewards)
+update_plot(total_rewards)
 plt.show()
