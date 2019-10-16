@@ -1,3 +1,9 @@
+"""
+This script trains an agent for cartpole using MC policy gradients
+The agent is able to solve after ~200 generations however it will often forget its knowledge
+and oscilate between non-solved and solved states.
+"""
+
 import math, os, sys, random
 import numpy as np
 import tensorflow as tf
@@ -19,8 +25,8 @@ env = gym.make('CartPole-v0')
 total_rewards = []
 
 
-TRAINING_EPOCHS = 10
-
+TRAINING_EPOCHS = 1000  
+DISCOUNT_FACTOR = 0.9
 
 
 # Plot total reward over time
@@ -72,10 +78,8 @@ for episode in range(TRAINING_EPOCHS):
 
     # After a full game of observations, calculate G_t for each (S_t, A_t) pair
     # In this case, G_t is the total future discounted reward
-    discount_factor = 0.9
-
     for i in range(len(rewards)-2, -1, -1):
-        rewards[i] += rewards[i+1] * discount_factor
+        rewards[i] += rewards[i+1] * DISCOUNT_FACTOR
 
     # print(actions, rewards)
 
